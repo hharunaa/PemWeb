@@ -80,6 +80,64 @@ Pastikan perangkat Anda sudah terinstal perangkat lunak berikut:
    http://127.0.0.1:5000/
    ```
 
+## Menjalankan dengan XAMPP
+
+1. **Instalasi XAMPP**
+   Pastikan Anda telah mengunduh dan menginstal XAMPP di perangkat Anda. Pastikan modul **Apache** dan **MySQL** aktif melalui XAMPP Control Panel.
+
+2. **Konfigurasi Database**
+   - Buka phpMyAdmin di browser Anda melalui `http://localhost/phpmyadmin`.
+   - Buat database dengan nama `db_kuliah`.
+   - Jalankan skrip berikut di tab SQL:
+     ```sql
+     CREATE TABLE db_kuliah (
+         nim VARCHAR(20) PRIMARY KEY,
+         nama VARCHAR(100),
+         asal VARCHAR(100)
+     );
+     ```
+
+3. **Konfigurasi Flask untuk XAMPP**
+   - Pastikan kredensial di file `app.py` sesuai:
+     ```python
+     db = mysql.connector.connect(
+         host="127.0.0.1",
+         user="root",
+         passwd="",
+         database="db_kuliah"
+     )
+     ```
+
+4. **Menjalankan Aplikasi**
+   - Jalankan aplikasi menggunakan perintah berikut di terminal:
+     ```bash
+     python app.py
+     ```
+   - Akses aplikasi di browser Anda melalui `http://127.0.0.1:5000/`.
+
+## Catatan Penting
+
+- Pastikan semua service (Apache dan MySQL) sudah berjalan sebelum menjalankan aplikasi.
+- Periksa koneksi database sebelum menjalankan operasi CRUD.
+- Semua file HTML harus berada dalam folder `templates`.
+- Semua asset (CSS, JS, images, fonts) harus berada dalam folder `static`.
+- Gunakan virtual environment untuk menghindari konflik dependensi.
+
+## Troubleshooting
+
+1. **Jika terjadi error koneksi database:**
+   - Periksa service MySQL sudah berjalan.
+   - Periksa kredensial database (username dan password).
+   - Pastikan database `db_kuliah` sudah dibuat.
+
+2. **Jika template tidak ditemukan:**
+   - Pastikan struktur folder sudah benar.
+   - Periksa nama file template sesuai dengan yang dipanggil di `render_template()`.
+
+3. **Jika static files tidak termuat:**
+   - Periksa struktur folder `static`.
+   - Pastikan path di `url_for()` sudah benar.
+
 ## Struktur Proyek
 
 ```
@@ -163,7 +221,7 @@ if __name__ == '__main__':
 ### index.html
 ```html
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -192,13 +250,71 @@ if __name__ == '__main__':
                 <td>{{ mhs.nama }}</td>
                 <td>{{ mhs.asal }}</td>
                 <td>
-                    <a href="{{ url_for('edit', nim=mhs.nim) }}" class="button-edit">Ubah</a>
+                    <a href="{{ url_for('edit', old_nim=mhs.nim) }}" class="button-edit">Ubah</a>
                     <a href="{{ url_for('delete', nim=mhs.nim) }}" class="button-delete">Hapus</a>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+</body>
+</html>
+```
+
+### add.html
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amikom Yogyakarta</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <img src="{{ url_for('static', filename='amikom.jpeg') }}" alt="Logo" class="logo">
+        <h1>Data Mahasiswa Amikom Yogyakarta</h1>
+    </header>
+    <form action="{{ url_for('add') }}" method="POST">
+        <label for="nim">NIM:</label>
+        <input type="text" name="nim" placeholder="NIM" required>
+        <label for="nama">Nama:</label>
+        <input type="text" name="nama" placeholder="Nama" required>
+        <label for="asal">Asal:</label>
+        <input type="text" name="asal" placeholder="Asal" required>
+        <button type="submit">Submit</button>
+    </form>
+    <a href="{{ url_for('index') }}" class="button" style="display: inline-block; margin-top: 20px;">Kembali</a>
+</body>
+</html>
+```
+
+### edit.html
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amikom Yogyakarta</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <img src="{{ url_for('static', filename='amikom.jpeg') }}" alt="Logo" class="logo">
+        <h1>Data Mahasiswa Amikom Yogyakarta</h1>
+    </header>
+    <form action="{{ url_for('edit', old_nim=mahasiswa.nim) }}" method="POST">
+        <label for="nim">NIM:</label>
+        <input type="text" name="nim" value="{{ mahasiswa.nim }}" required>
+        <label for="nama">Nama Lengkap:</label>
+        <input type="text" name="nama" value="{{ mahasiswa.nama }}" required>
+        <label for="asal">Asal:</label>
+        <input type="text" name="asal" value="{{ mahasiswa.asal }}" required>
+        <button type="submit">Update</button>
+    </form>
+    <a href="{{ url_for('index') }}" class="button" style="display: inline-block; margin-top: 20px;">Kembali</a>
 </body>
 </html>
 ```
@@ -366,60 +482,4 @@ label {
     background-color:#eee;  
     padding: 5px; 
 }
-```
-### add.html
-```add
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amikom Yogyakarta</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <header>
-        <img src="{{ url_for('static', filename='amikom.jpeg') }}" alt="Logo" class="logo">
-        <h1>Data Mahasiswa Amikom Yogyakarta</h1>
-    </header>
-    <form action="{{ url_for('add') }}" method="POST">
-        <label for="nim">NIM:</label>
-        <input type="text" name="nim" placeholder="NIM" required>
-        <label for="nama">Nama:</label>
-        <input type="text" name="nama" placeholder="Nama" required>
-        <label for="asal">Asal:</label>
-        <input type="text" name="asal" placeholder="Asal" required>
-        <button type="submit">Submit</button>
-    </form>
-    <a href="{{ url_for('index') }}" class="button" style="display: inline-block; margin-top: 20px;">Kembali</a>
-</body>
-</html>
-```
-### edit.html
-```edit
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amikom Yogyakarta</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <header>
-        <img src="{{ url_for('static', filename='amikom.jpeg') }}" alt="Logo" class="logo">
-        <h1>Data Mahasiswa Amikom Yogyakarta</h1>
-    </header>
-    <form action="{{ url_for('add') }}" method="POST">
-        <label for="nim">NIM:</label>
-        <input type="text" name="nim" placeholder="NIM" required>
-        <label for="nama">Nama:</label>
-        <input type="text" name="nama" placeholder="Nama" required>
-        <label for="asal">Asal:</label>
-        <input type="text" name="asal" placeholder="Asal" required>
-        <button type="submit">Submit</button>
-    </form>
-    <a href="{{ url_for('index') }}" class="button" style="display: inline-block; margin-top: 20px;">Kembali</a>
-</body>
-</html>
 ```
