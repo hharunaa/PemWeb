@@ -24,8 +24,7 @@ Pastikan perangkat Anda sudah terinstal perangkat lunak berikut:
 1. Clone repositori ini:
 
    ```bash
-   git clone https://github.com/your-username/your-repository-name.git
-   cd your-repository-name
+   git clone https://github.com/hharuna/PemWeb
    ```
 
 2. Buat virtual environment (opsional tapi disarankan):
