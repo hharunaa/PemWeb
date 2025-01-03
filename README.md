@@ -13,8 +13,9 @@ Aplikasi web sederhana berbasis Flask untuk mengelola data mahasiswa di Amikom Y
 
 Pastikan perangkat Anda sudah terinstal perangkat lunak berikut:
 
-- Python 3.x
+- Python 3.14
 - pip (pengelola paket Python)
+- XAMPP
 - MySQL Server
 - Flask dan pustaka terkait
 
